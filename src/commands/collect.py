@@ -13,7 +13,6 @@ import pyjq
 import urllib.parse
 from botocore.exceptions import ClientError, EndpointConnectionError, NoCredentialsError
 from shared.common import get_account, custom_serializer
-from awsretry import AWSRetry
 
 __description__ = "Run AWS API calls to collect data from the account"
 
@@ -45,7 +44,6 @@ def make_directory(path):
         # Already exists
         pass
 
-@AWSRetry.backoff()
 def call_function(outputfile, handler, method_to_call, parameters, check, summary):
     """
     Calls the AWS API function and downloads the data
@@ -61,7 +59,7 @@ def call_function(outputfile, handler, method_to_call, parameters, check, summar
         # Data already collected, so skip
         print("  Response already collected at {}".format(outputfile), flush=True)
         return
-
+    
     call_summary = {'service': handler.meta.service_model.service_name, 'action': method_to_call, 'parameters': parameters}
 
     print("  Making call for {}".format(outputfile), flush=True)
@@ -93,7 +91,7 @@ def call_function(outputfile, handler, method_to_call, parameters, check, summar
             else:
                 break
 
-
+        
     except ClientError as e:
         if "NoSuchBucketPolicy" in str(e):
             # This error occurs when you try to get the bucket policy for a bucket that has no bucket policy, so this can be ignored.
@@ -122,7 +120,7 @@ def call_function(outputfile, handler, method_to_call, parameters, check, summar
     if data is not None:
         with open(outputfile, 'w+') as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=custom_serializer))
-
+    
     summary.append(call_summary)
 
 
