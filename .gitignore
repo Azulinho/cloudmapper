@@ -12,3 +12,4 @@ data/
 private_commands/
 output/
 tmp/*
+config.json
